@@ -6,20 +6,17 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ThreadPooledServer implements Runnable{
+import freakrware.privat.standards.android.resources.Standards_interface;
 
-    private static final int THREAD_POOL_COUNT = 20;
-	protected int          serverPort;
-    protected ServerSocket serverSocket = null;
+public class ThreadPooledServer implements Runnable,Standards_interface,Config_interfaces{
+
+    
+	protected ServerSocket serverSocket = null;
     protected boolean      isStopped    = false;
     protected Thread       runningThread= null;
     protected ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_COUNT);
-	public SysTray tray;
+	public SysTray mSysTray;
 	
-
-    public ThreadPooledServer(int port){
-        this.serverPort = port;
-    }
 
     public void run(){
         synchronized(this){
@@ -34,18 +31,15 @@ public class ThreadPooledServer implements Runnable{
                 if(isStopped()) {
                 	this.threadPool.shutdown();
                     System.out.println("Server Stopped.") ;
-//                    tray.update(setup.get_Parameter(SERVERSTATUS));
-                    return;
+                  return;
                 }
-                throw new RuntimeException(
-                    "Error accepting client connection", e);
+                standard.exception_catch(e);
+                throw new RuntimeException("Error accepting client connection", e);
             }
-            tray.clientip = clientSocket.getLocalSocketAddress();
-            tray.update("C");
-            this.threadPool.execute(
-                new ServerRunnable(clientSocket,tray));
+            mSysTray.clientip = clientSocket.getLocalSocketAddress();
+            mSysTray.update("C");
+            this.threadPool.execute(new ServerRunnable(clientSocket,mSysTray));
         }
-//        tray.update(setup.get_Parameter(SERVERSTATUS));
         this.threadPool.shutdownNow();
         System.out.println("Server Stopped.") ;
     }
@@ -59,22 +53,18 @@ public class ThreadPooledServer implements Runnable{
         this.isStopped = true;
         try {
         	this.serverSocket.close();
-//            setup.set_Parameter(SERVERSTATUS, SERVERSTATUS_OFF);
-//            System.out.println(setup.get_Parameter(SERVERSTATUS));
-//            tray.update(setup.get_Parameter(SERVERSTATUS));
         } catch (IOException e) {
+        	standard.exception_catch(e);
             throw new RuntimeException("Error closing server", e);
         }
     }
 
     private void openServerSocket() {
         try {
-            this.serverSocket = new ServerSocket(this.serverPort);
-//            setup.set_Parameter(SERVERSTATUS, SERVERSTATUS_ON);
-//            System.out.println(setup.get_Parameter(SERVERSTATUS));
-//            tray.update(setup.get_Parameter(SERVERSTATUS));
+            this.serverSocket = new ServerSocket(PORT);
         } catch (IOException e) {
-            throw new RuntimeException("Cannot open port "+serverPort, e);
+        	standard.exception_catch(e);
+            throw new RuntimeException("Cannot open port "+PORT, e);
         }
     }
 }

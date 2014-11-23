@@ -14,20 +14,19 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.net.SocketAddress;
 
+import freakrware.privat.standards.android.resources.Standards_interface;
 
 
-public class SysTray{
+
+public class SysTray implements Standards_interface{
 
 	TrayIcon trayIcon = null;
 	final static Image IMAGE_START = set_image("A");
 	ThreadPooledServer server;
 	public SocketAddress clientip;
-	public boolean uiclosed = false;
-	protected int PORT;
 	
-	public SysTray(ThreadPooledServer server, int port) {
+	public SysTray(ThreadPooledServer server) {
 		this.server = server ;
-		this.PORT = port;
 	}
 	public void start() {
 	
@@ -48,9 +47,9 @@ public class SysTray{
             public void actionPerformed(ActionEvent e) {
         		
         		if (server.isStopped()){
-        			server = new ThreadPooledServer(PORT);
+        			server = new ThreadPooledServer();
         			System.out.println("Starting Server");
-        			server.tray = SysTray.this;
+        			server.mSysTray = SysTray.this;
         			update("A");
         			new Thread(server).start();
         		}
@@ -95,12 +94,12 @@ public class SysTray{
         popup.add(sstopItem);
         popup.add(sstartItem);
         popup.add(endItem);
-        trayIcon = new TrayIcon(IMAGE_START, "WDD_Server", popup);
-        trayIcon.addActionListener(beenden);
+        trayIcon = new TrayIcon(IMAGE_START, "Server", popup);
+        trayIcon.addActionListener(open);
         try {
             tray.add(trayIcon);
         } catch (AWTException e) {
-            System.err.println(e);
+            standard.exception_catch(e);
         }
     } else {
     }
@@ -113,10 +112,10 @@ public class SysTray{
 			trayIcon.setImageAutoSize(true);
 			trayIcon.setImage(image);
 			if (status.equals("C")){
-				trayIcon.setToolTip("WDD_Server : linked to IP = "+String.valueOf(clientip));
+				trayIcon.setToolTip("Server : linked to IP = "+String.valueOf(clientip));
 			}else
 			{
-			trayIcon.setToolTip("WDD_Server");
+			trayIcon.setToolTip("Server");
 			}
 		}
 	}

@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import freakrware.privat.standards.android.resources.SFCP;
 import freakrware.privat.standards.android.resources.Standards_interface;
 
 public class ServerRunnable implements Runnable,Standards_interface{
@@ -28,17 +29,11 @@ public class ServerRunnable implements Runnable,Standards_interface{
         	String line; 
         	while( (line = input.readLine())!=null){
             	System.out.println(line);
-//            	String serverstatus = setup.get_Parameter(SERVERSTATUS);
-//            	if (serverstatus.equals(SERVERSTATUS_OFF)){
-//            		line = CONNECTION_CLOSE;
-//            	}
             	new SFCP(line,input,output);
             	
             }  
         } catch (IOException e) {
-//        	tray.update(setup.get_Parameter(SERVERSTATUS));
         	standard.exception_catch(e);
-        	//e.printStackTrace();
         }
     }
 }
